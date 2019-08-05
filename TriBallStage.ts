@@ -8,6 +8,7 @@ const sizeFactor : number = 2.9
 const scDiv : number = 0.51
 const nodes : number = 5
 const lines : number = 3
+const rFactor : number = 3.2
 
 class TriBallStage {
 
@@ -60,5 +61,45 @@ class ScaleUtil {
 
     static updateValue(scale : number, dir : number, a : number, b : number) : number {
         return ScaleUtil.mirrorValue(scale, a, b) * dir * scGap
+    }
+}
+
+class DrawingUtil {
+
+    static drawBallPin(context : CanvasRenderingContext2D, size : number, scale : number) {
+        context.beginPath()
+        context.moveTo(0, 0)
+        context.lineTo(0, -size * scale)
+        context.stroke()
+        context.beginPath()
+        context.arc(0, -size * scale, size / rFactor, 0, 2 * Math.PI)
+        context.fill()
+    }
+
+    static drawRotatingBallPin(context : CanvasRenderingContext2D, sc1 : number, sc2 : number, size : number) {
+        var deg : number = 0
+        const gapDeg : number = 2 * Math.PI / lines
+        for (var i = 0; i < lines; i++) {
+            deg += gapDeg * ScaleUtil.divideScale(sc2, i, lines)
+            context.save()
+            context.rotate(deg)
+            DrawingUtil.drawBallPin(context, size, sc1)
+            context.restore()
+        }
+    }
+
+    static drawTBNode(context : CanvasRenderingContext2D, i : number, scale : number) {
+        const sc1 : number = ScaleUtil.divideScale(scale, 0, 2)
+        const sc2 : number = ScaleUtil.divideScale(scale, 1, 2)
+        context.lineCap = 'round'
+        context.lineWidth = Math.min(w, h) / strokeFactor
+        context.strokeStyle = foreColor
+        context.fillStyle = foreColor
+        const gap : number = h / (nodes + 1)
+        const size : number = gap / sizeFactor
+        context.save()
+        context.translate(w / 2, gap * (i + 1))
+        DrawingUtil.drawRotatingBallPin(context, sc1, sc2, size)
+        context.restore()
     }
 }
