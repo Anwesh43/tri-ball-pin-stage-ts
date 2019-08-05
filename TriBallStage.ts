@@ -216,3 +216,25 @@ class TriBall {
         this.curr.startUpdating(cb)
     }
 }
+
+class Renderer {
+
+    tb : TriBall = new TriBall()
+    animator : Animator = new Animator()
+
+    render(context : CanvasRenderingContext2D) {
+        this.tb.draw(context)
+    }
+
+    handleTap(cb : Function) {
+        this.tb.startUpdating(() => {
+            this.animator.start(() => {
+                cb()
+                this.tb.update(() => {
+                    this.animator.stop()
+                    cb()
+                })
+            })
+        })
+    }
+}
